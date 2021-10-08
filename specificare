@@ -1,0 +1,21 @@
+program = "#include <stdio.h>\nint main(){", {instr}, "return 0;}";
+instr = atribuire | instr_if | instr_while | citire | afisare
+	| declarare | definire_struct;
+atribuire = ID, ["+" | "-"], "=", expr, ";";
+expr = ID | const | expr, operator, expr;
+operator = "+" | "-" | "*" | "==" | "!=" | "<" | ">";
+instr_if = "if(", expr, ") {", {instr}, "}", ["else { ", {instr}, "}"];
+instr_while = "while(", expr, ") {", {instr} "}";
+citire = "scanf(", FORMAT, {", &", ID}, ");";
+afisare = "printf(", FORMAT, {", ", expr}, ");";
+declarare = tip_date, ID, [" = ", (const | ID)],
+	{", ", ID, [" = ", (const | ID)]}, ";";
+definire_struct = "struct ", NUME_STRUCT, " { ", {declarare}, "};";
+tip_date = "int" | "float" | NUME_STRUCT;
+const = CONST_INT | CONST_FLOAT;
+
+ID: [a-zA-Z]{1, 250}
+NUME_STRUCT: [a-zA-Z]{1, 250}
+FORMAT: "[a-zA-Z,:%\\ ]*"
+CONST_INT: -?[0-9]{1, 100}
+CONST_FLOAT: -?[0-9]{1, 100}\.[0-9]{, 100}
