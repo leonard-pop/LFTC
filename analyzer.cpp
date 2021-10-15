@@ -2,6 +2,8 @@
 #include <fstream>
 //#include <map>
 
+#define MAX_ID_SIZE 250
+
 enum STATES {
 	S_START = 0,
 	S_DEAD,
@@ -78,6 +80,11 @@ void registerIdentifier(string buffer) {
 			cout << "Keyword: " << buffer << endl;
 			return;
 		}
+	}
+
+	if(buffer.size() > MAX_ID_SIZE) {
+		cout << "Identifier too long: " << buffer << endl;
+		return;
 	}
 
 	cout << "Identifier: " << buffer << endl;
