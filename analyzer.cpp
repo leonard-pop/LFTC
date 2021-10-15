@@ -12,7 +12,8 @@ enum STATES {
 	S_STR,
 	S_STR_END,
 	S_SEP,
-	S_OP
+	S_OP,
+	S_FLOAT
 };
 
 //typedef unsigned short (*Action)(string &token_buffer);
@@ -25,7 +26,7 @@ unsigned short translation_array[] =
 {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7, 5, 6, 2, 2, 7, 2, 6, 6, 7, 7, 6, 7,
-	4, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 6, 7, 7, 7, 7, 2, 4, 4, 4, 4,
+	8, 7, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 6, 7, 7, 7, 7, 2, 4, 4, 4, 4,
 	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 6,
 	2, 6, 7, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
 	4, 4, 4, 4, 4, 4, 4, 4, 6, 7, 6, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -37,18 +38,19 @@ unsigned short translation_array[] =
 	0, 0, 0
 };
 
-unsigned short state_table[][7] = 
+unsigned short state_table[][8] = 
 {
-/* 				1 			2 			3 			4 			5 			6 			7 */
-/*  			whitespace 	printable 	digit 		letter 		quote 		separator 	operator */
-/* START */		{S_START, 	S_DEAD, 	S_NR, 		S_ID, 		S_STR, 		S_SEP, 		S_OP},
-/* DEAD  */		{S_DEAD, 	S_DEAD, 	S_DEAD, 	S_DEAD, 	S_DEAD, 	S_DEAD, 	S_DEAD},
-/* NR */ 		{S_START, 	S_DEAD, 	S_NR, 		S_DEAD, 	S_DEAD, 	S_START, 	S_START},
-/* ID */ 		{S_START, 	S_DEAD, 	S_DEAD, 	S_ID, 		S_DEAD, 	S_START, 	S_START},
-/* STR */ 		{S_STR, 	S_STR, 		S_STR, 		S_STR, 		S_STR_END, 	S_STR, 		S_STR},
-/* STR_END */ 	{S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START},
-/* SEP */ 		{S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START},
-/* OP */ 		{S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_OP}
+/* 				1 			2 			3 			4 			5 			6 			7 			8 */
+/*  			whitespace 	printable 	digit 		letter 		quote 		separator 	operator 	dot */
+/* START */		{S_START, 	S_DEAD, 	S_NR, 		S_ID, 		S_STR, 		S_SEP, 		S_OP, 		S_DEAD},
+/* DEAD  */		{S_DEAD, 	S_DEAD, 	S_DEAD, 	S_DEAD, 	S_DEAD, 	S_DEAD, 	S_DEAD, 	S_DEAD},
+/* NR */ 		{S_START, 	S_DEAD, 	S_NR, 		S_DEAD, 	S_DEAD, 	S_START, 	S_START, 	S_FLOAT},
+/* ID */ 		{S_START, 	S_DEAD, 	S_DEAD, 	S_ID, 		S_DEAD, 	S_START, 	S_START, 	S_ID},
+/* STR */ 		{S_STR, 	S_STR, 		S_STR, 		S_STR, 		S_STR_END, 	S_STR, 		S_STR, 		S_STR},
+/* STR_END */ 	{S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START},
+/* SEP */ 		{S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_DEAD},
+/* OP */ 		{S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_START, 	S_OP, 		S_DEAD},
+/* FLOAT */ 	{S_START, 	S_DEAD, 	S_FLOAT, 	S_DEAD, 	S_DEAD, 	S_START, 	S_START, 	S_DEAD}
 };
 
 string keywords[] =
@@ -102,6 +104,10 @@ void registerOperator(string buffer) {
 	cout << "Operator: " << buffer << endl;
 }
 
+void registerFloat(string buffer) {
+	cout << "Float: " << buffer << endl;
+}
+
 void signalError(string buffer) {
 	cout << "Invalid sequence: " << buffer << endl;
 }
@@ -126,6 +132,9 @@ void handleTokenEnd(string buffer, unsigned short state) {
 			break;
 		case S_OP:
 			registerOperator(buffer);
+			break;
+		case S_FLOAT:
+			registerFloat(buffer);
 			break;
 		default:
 			break;
