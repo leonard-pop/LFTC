@@ -1,8 +1,55 @@
 #include <iostream>
 #include <fstream>
+#include "MDO.h"
+#include "IteratorMDO.h"
+#include <vector>
 //#include <map>
 
 #define MAX_ID_SIZE 250
+#define ID_CODE 0
+#define CONST_CODE 1
+
+using namespace std;
+
+bool compare(string first, string second) {
+	if (first <= second) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+MDO id_table(compare), const_table(compare);
+vector<pair<int, int>> fip;
+string known_atoms[] {
+	"",
+	"",
+	"include",
+	"int",
+	"float",
+	"if",
+	"else",
+	"while",
+	"return",
+	"!",
+	"&",
+	"*",
+	"+",
+	"-",
+	"/",
+	"<",
+	"=",
+	">",
+	"?",
+	"^",
+	"|",
+	"~",
+	"+=",
+	"-=",
+	"<=",
+	">=",
+};
 
 enum STATES {
 	S_START = 0,
@@ -17,8 +64,6 @@ enum STATES {
 };
 
 //typedef unsigned short (*Action)(string &token_buffer);
-
-using namespace std;
 
 //map<pair<unsigned short, unsigned short>, Action> action_map;
 
@@ -70,8 +115,33 @@ void initializeActionMap() {
 }
 */
 
+void addKnownAtom(string buffer) {
+	int length = sizeof(known_atoms) / sizeof(known_atoms[0]);
+
+	for(int i = 2; i < length; i++) {
+		if(known_atoms[i] == buffer) {
+			fip.push_back(make_pair(i, -1));
+		}
+	}
+}
+
+void addSymbol(string buffer, MDO &table, int atom_code) {
+	vector<int> found = table.cauta(buffer);
+	int symbol_code = -1;
+
+	if(found.size()) {
+		symbol_code = found[0];
+	} else {
+		symbol_code = table.dim();
+		table.adauga(buffer, table.dim());
+	}
+
+	fip.push_back(make_pair(atom_code, symbol_code));
+}
+
 void registerNumber(string buffer) {
 	cout << "Number: " << buffer << endl;
+	addSymbol(buffer, const_table, CONST_CODE);
 }
 
 void registerIdentifier(string buffer) {
@@ -80,6 +150,7 @@ void registerIdentifier(string buffer) {
 	for(int i = 0; i < keyword_count; i++) {
 		if(buffer == keywords[i]) {
 			cout << "Keyword: " << buffer << endl;
+			addKnownAtom(buffer);
 			return;
 		}
 	}
@@ -90,10 +161,12 @@ void registerIdentifier(string buffer) {
 	}
 
 	cout << "Identifier: " << buffer << endl;
+	addSymbol(buffer, id_table, ID_CODE);
 }
 
 void registerString(string buffer) {
 	cout << "String: " << buffer << endl;
+	addSymbol(buffer, const_table, CONST_CODE);
 }
 
 void registerSeparator(string buffer) {
@@ -102,10 +175,12 @@ void registerSeparator(string buffer) {
 
 void registerOperator(string buffer) {
 	cout << "Operator: " << buffer << endl;
+	addKnownAtom(buffer);
 }
 
 void registerFloat(string buffer) {
 	cout << "Float: " << buffer << endl;
+	addSymbol(buffer, const_table, CONST_CODE);
 }
 
 void signalError(string buffer) {
@@ -202,6 +277,30 @@ void tokenizer(ifstream &input) {
 	}
 }
 
+void printTables() {
+	cout << "\n# ID table:\n";
+
+	vector<string> keys = id_table.multimeaCheilor();
+
+	for(int i = 0; i < keys.size(); i++) {
+		cout << keys[i] << ' ' << id_table.cauta(keys[i])[0] << '\n';
+	}
+
+	cout << "\n# Constant table:\n";
+
+	keys = const_table.multimeaCheilor();
+
+	for(int i = 0; i < keys.size(); i++) {
+		cout << keys[i] << ' ' << const_table.cauta(keys[i])[0] << '\n';
+	}
+
+	cout << "\n# FIP:\n";
+
+	for(int i = 0; i < fip.size(); i++) {
+		cout << fip[i].first << ' ' << fip[i].second << '\n';
+	}
+}
+
 int main(int argc, char** argv) {
 	if(argc < 2) {
 		cout << "No input file specified\n";
@@ -211,6 +310,8 @@ int main(int argc, char** argv) {
 	ifstream input_file(argv[1]);
 
 	tokenizer(input_file);
+
+	printTables();
 
 	return 0;
 }
