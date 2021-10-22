@@ -62,7 +62,15 @@ string known_atoms[] {
 	"++",
 	"--",
 	"&&",
-	"||"
+	"||",
+	"#",
+	"()",
+	",",
+	";",
+	"[",
+	"]",
+	"{",
+	"}"
 };
 
 enum STATES {
@@ -217,7 +225,7 @@ void registerString(string buffer) {
 }
 
 void registerSeparator(string buffer) {
-	cout << "Separator: " << buffer << endl;
+	addKnownAtom(buffer);
 }
 
 void registerOperator(string buffer) {
