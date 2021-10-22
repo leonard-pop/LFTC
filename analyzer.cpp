@@ -22,6 +22,8 @@ bool compare(string first, string second) {
 
 MDO id_table(compare), const_table(compare);
 vector<pair<int, int>> fip;
+string current_line = "";
+int line_count = 0, line_pos = 0;
 
 string known_atoms[] {
 	"",
@@ -171,11 +173,16 @@ void addSymbol(string buffer, MDO &table, int atom_code) {
 }
 
 void signalError(string buffer) {
-	cout << "\033[1;31mInvalid sequence: " << buffer << "\033[0m\n";
+	cout << "\n\033[1mInvalid sequence:\033[0m\n";
+	cout << line_count << ':' << line_pos - buffer.size() + 1 << " | " 
+		<< current_line.substr(0, line_pos - buffer.size())
+		<< "\033[1;31m" << current_line.substr(line_pos - buffer.size(), buffer.size()) << "\033[0m"
+		<< current_line.substr(line_pos)
+		<< "\n\n";
 }
 
 void signalInvalidCharacter(char character) {
-	cout << "Invalid character: " << character << endl;
+	cout << "Invalid character: " << (int)character << ' ' << line_pos << endl;
 }
 
 void registerNumber(string buffer) {
@@ -195,7 +202,8 @@ void registerIdentifier(string buffer) {
 	}
 
 	if(buffer.size() > MAX_ID_SIZE) {
-		cout << "Identifier too long: " << buffer << endl;
+		//cout << "Identifier too long: " << buffer << endl;
+		signalError(buffer);
 		return;
 	}
 
@@ -262,11 +270,23 @@ void handleTokenEnd(string buffer, unsigned short state) {
 }
 
 char getNextChar(ifstream &input) {
-	char next_char;
+	line_pos++;
 
-	input >> noskipws >> next_char;
+	if(line_pos >= current_line.size()) {
+		getline(input, current_line);
+		while(!input.eof() && !current_line.size()) {
+			getline(input, current_line);
+		}
 
-	return next_char;
+		if(input.eof()) {
+			return 0;
+		}
+
+		line_pos = 0;
+		line_count++;
+	}
+
+	return current_line[line_pos];
 }
 
 void tokenizer(ifstream &input) {
@@ -277,7 +297,7 @@ void tokenizer(ifstream &input) {
 				   current_state = S_START,
 				   input_code;
 
-	input >> current_char;
+	current_char = getNextChar(input);
 
 	while(!(input.eof())) {
 		input_code = translation_array[current_char];
@@ -316,6 +336,7 @@ void tokenizer(ifstream &input) {
 	if(token_buffer != "") {
 		handleTokenEnd(token_buffer, previous_state);
 	} else if(current_state == S_DEAD) {
+		token_buffer += current_char;
 		signalError(token_buffer);
 		token_buffer = "";
 		current_state = S_START;
