@@ -22,6 +22,7 @@ bool compare(string first, string second) {
 
 MDO id_table(compare), const_table(compare);
 vector<pair<int, int>> fip;
+
 string known_atoms[] {
 	"",
 	"",
@@ -45,10 +46,21 @@ string known_atoms[] {
 	"^",
 	"|",
 	"~",
-	"+=",
-	"-=",
+	"==",
+	"!=",
 	"<=",
 	">=",
+	"<<",
+	">>",
+	"&=",
+	"|=",
+	"^=",
+	"+=",
+	"-=",
+	"++",
+	"--",
+	"&&",
+	"||"
 };
 
 enum STATES {
@@ -109,6 +121,25 @@ string keywords[] =
 	"return"
 };
 
+string multichar_operators[] =
+{
+	"==",
+	"!=",
+	"<=",
+	">=",
+	"<<",
+	">>",
+	"&=",
+	"|=",
+	"^=",
+	"+=",
+	"-=",
+	"++",
+	"--",
+	"&&",
+	"||"
+};
+
 /*
 void initializeActionMap() {
 	action_map[pair<
@@ -137,6 +168,14 @@ void addSymbol(string buffer, MDO &table, int atom_code) {
 	}
 
 	fip.push_back(make_pair(atom_code, symbol_code));
+}
+
+void signalError(string buffer) {
+	cout << "\033[1;31mInvalid sequence: " << buffer << "\033[0m\n";
+}
+
+void signalInvalidCharacter(char character) {
+	cout << "Invalid character: " << character << endl;
 }
 
 void registerNumber(string buffer) {
@@ -174,21 +213,27 @@ void registerSeparator(string buffer) {
 }
 
 void registerOperator(string buffer) {
-	cout << "Operator: " << buffer << endl;
-	addKnownAtom(buffer);
+	if(buffer.size() == 1) {
+		cout << "Operator: " << buffer << endl;
+		addKnownAtom(buffer);
+	} else {
+		int operator_count = sizeof(multichar_operators) / sizeof(multichar_operators[0]);
+
+		for(int i = 0; i < operator_count; i++) {
+			if(buffer == multichar_operators[i]) {
+				cout << "Operator: " << buffer << endl;
+				addKnownAtom(buffer);
+				return;
+			}
+		}
+		
+		signalError(buffer);
+	}
 }
 
 void registerFloat(string buffer) {
 	cout << "Float: " << buffer << endl;
 	addSymbol(buffer, const_table, CONST_CODE);
-}
-
-void signalError(string buffer) {
-	cout << "Invalid sequence: " << buffer << endl;
-}
-
-void signalInvalidCharacter(char character) {
-	cout << "Invalid character: " << character << endl;
 }
 
 void handleTokenEnd(string buffer, unsigned short state) {
