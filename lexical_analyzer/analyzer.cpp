@@ -105,7 +105,7 @@ unsigned short translation_array[] =
 	0, 0, 0
 };
 
-unsigned short state_table[][8] = 
+unsigned short state_table[][8] =
 {
 /* 				1 			2 			3 			4 			5 			6 			7 			8 */
 /*  			whitespace 	printable 	digit 		letter 		quote 		separator 	operator 	dot */
@@ -182,7 +182,7 @@ void addSymbol(string buffer, MDO &table, int atom_code) {
 
 void signalError(string buffer) {
 	cout << "\n\033[1mInvalid sequence:\033[0m\n";
-	cout << line_count << ':' << line_pos - buffer.size() + 1 << " | " 
+	cout << "    " << line_count << ':' << line_pos - buffer.size() + 1 << " | "
 		<< current_line.substr(0, line_pos - buffer.size())
 		<< "\033[1;31m" << current_line.substr(line_pos - buffer.size(), buffer.size()) << "\033[0m"
 		<< current_line.substr(line_pos)
@@ -242,7 +242,7 @@ void registerOperator(string buffer) {
 				return;
 			}
 		}
-		
+
 		signalError(buffer);
 	}
 }
