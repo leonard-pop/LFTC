@@ -378,6 +378,7 @@ void checkIfAccepted() {
 	string line;
 	int last_accepting;
 
+	getline(cin, line);
 	cout << "Input string: ";
 	getline(cin, line);
 	stripString(line);
@@ -396,6 +397,7 @@ void printLongestAcceptingPrefix() {
 	string line;
 	int last_accepting;
 
+	getline(cin, line);
 	cout << "Input string: ";
 	getline(cin, line);
 	stripString(line);
@@ -413,14 +415,51 @@ int main(int argc, char** argv) {
 	if(argc < 2) {
 		return 1;
 	}
+	bool running = true;
+	string command_string;
+	int command;
 
 	if(!readFile(argv[1])) {
-		//printAlphabet();
-		//printStates();
-		//printFinalStates();
-		//printTransitions();
-		//checkIfAccepted();
-		printLongestAcceptingPrefix();
+		while(running) {
+			cout << "--------------------\n"
+				<< "Actions:\n"
+				<< " 1 - print alphabet\n"
+				<< " 2 - print all states\n"
+				<< " 3 - print final states\n"
+				<< " 4 - print transitions\n"
+				<< " 5 - check if string is accepted\n"
+				<< " 6 - get longest accepting string\n"
+				<< " 0 - exit\n"
+				<< "\nEnter option: ";
+			cin >> command;
+
+			switch(command) {
+				case 0:
+					running = false;
+					break;
+				case 1:
+					printAlphabet();
+					break;
+				case 2:
+					printStates();
+					break;
+				case 3:
+					printFinalStates();
+					break;
+				case 4:
+					printTransitions();
+					break;
+				case 5:
+					checkIfAccepted();
+					break;
+				case 6:
+					printLongestAcceptingPrefix();
+					break;
+				default:
+					cout << "Invalid command\n";
+			}
+
+		}
 
 		return 0;
 	}
