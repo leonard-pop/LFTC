@@ -5,6 +5,7 @@
 #include <set>
 
 #define INVALID_INPUT -1
+#define INVALID_STATE -1
 
 using namespace std;
 
@@ -92,6 +93,10 @@ int fsm(string &line) {
 			return last_accepting;
 		} else {
 			current_state = transition_table[current_state][input_code];
+		}
+
+		if(current_state == INVALID_STATE) {
+			return last_accepting;
 		}
 
 		//cout << current_state << '\n';
@@ -247,7 +252,7 @@ int handleTransitionsLine(string &line) {
 	if(!started_transitions) {
 		transition_table.resize(state_map.size());
 		for(int i = 0; i < transition_table.size(); i++) {
-			transition_table[i].resize(256, -1);
+			transition_table[i].resize(256, INVALID_STATE);
 		}
 
 		started_transitions = true;

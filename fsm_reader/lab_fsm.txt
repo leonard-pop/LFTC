@@ -1,0 +1,16 @@
+.alphabet
+[a] = 1
+[b] = 2
+
+.states
+start - q0
+final - q4
+extra - q1, q2, q3
+
+.transitions
+q0 - 1 - q1
+q1 - 1 - q2
+q2 - 1 - q2
+q2 - 2 - q3
+q3 - 2 - q4
+q4 - 2 - q4
