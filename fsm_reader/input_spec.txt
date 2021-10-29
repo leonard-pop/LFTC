@@ -1,0 +1,17 @@
+input = alphabet_section, states_section, transitions_section;
+
+alphabet_section = ".alphabet\n", {alphabet_line};
+alphabet_line = "[", ["-"], "] = ", INPUT_CODE, "\n";
+alphabet_element = VALID_ALPHABET_CHARS
+	| VALID_ALPHABET_CHARS, "-", VALID_ALPHABET_CHARS;
+
+states_section = ".states\n", {states_line};
+states_line = state_type, " - ", NODE_ID, {", ", NODE_ID}, "\n";
+state_type = "start" | "final" | "extra";
+
+transitions_section = ".transitions\n", {transitions_line};
+transitions_line = NODE_ID, " - ", INPUT_CODE,  " - ", NODE_ID, "\n"
+
+NODE_ID = [a-zA-Z0-9]+
+VALID_ALPHABET_CHARS = [a-zA-Z0-9+]
+INPUT_CODE = [1-9]+|0
