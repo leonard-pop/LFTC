@@ -49,7 +49,7 @@ char getNextChar(string line, int *pos) {
 	} else {
 		return 0;
 	}
-	
+
 	/*
 	line_pos++;
 
@@ -80,8 +80,8 @@ int fsm(string &line) {
 	int pos = 0;
 	char current_char;
 	int previous_state = start_state,
-	   current_state = start_state,
-	   input_code, last_accepting = -1;
+		current_state = start_state,
+		input_code, last_accepting = -1;
 
 	while(pos < line.size()) {
 		current_char = line[pos];
@@ -214,7 +214,7 @@ int handleStatesLine(string &line) {
 		}
 
 		line_states.push_back(addState(name_buffer));
-		
+
 		skipCharacters(&pos, line, line_whitespace, 1);
 
 		pos++;
@@ -331,6 +331,53 @@ void printTransitions() {
 	}
 }
 
+int readStdin() {
+	string line = "";
+	int state = 0;
+
+	getline(cin, line);
+	stripString(line);
+
+	while(!cin.eof() && line != "stop") {
+
+		if(line.size() != 0) {
+			if(line[0] == '.') {
+				if(line == ".alphabet") {
+					state = ALPHABET;
+				} else if(line == ".alphabet") {
+					state = ALPHABET;
+				} else if(line == ".states") {
+					state = STATES;
+				} else if(line == ".transitions") {
+					state = TRANSITIONS;
+				} else {
+					signalError("Invalid state");
+					return 1;
+				}
+			} else {
+				switch(state) {
+					case ALPHABET:
+						handleAlphabetLine(line);
+						break;
+					case STATES:
+						handleStatesLine(line);
+						break;
+					case TRANSITIONS:
+						handleTransitionsLine(line);
+						break;
+					default:
+						signalError("No section name specified");
+						return 1;
+				}
+			}
+		}
+
+		getline(cin, line);
+	}
+
+	return 0;
+}
+
 int readFile(string file_name) {
 	ifstream input(file_name);
 	string line = "";
@@ -375,7 +422,7 @@ int readFile(string file_name) {
 
 		getline(input, line);
 	}
-	
+
 	return 0;
 }
 
@@ -417,57 +464,60 @@ void printLongestAcceptingPrefix() {
 }
 
 int main(int argc, char** argv) {
-	if(argc < 2) {
-		return 1;
-	}
 	bool running = true;
 	string command_string;
 	int command;
 
-	if(!readFile(argv[1])) {
-		while(running) {
-			cout << "--------------------\n"
-				<< "Actions:\n"
-				<< " 1 - print alphabet\n"
-				<< " 2 - print all states\n"
-				<< " 3 - print final states\n"
-				<< " 4 - print transitions\n"
-				<< " 5 - check if string is accepted\n"
-				<< " 6 - get longest accepting string\n"
-				<< " 0 - exit\n"
-				<< "\nEnter option: ";
-			cin >> command;
-
-			switch(command) {
-				case 0:
-					running = false;
-					break;
-				case 1:
-					printAlphabet();
-					break;
-				case 2:
-					printStates();
-					break;
-				case 3:
-					printFinalStates();
-					break;
-				case 4:
-					printTransitions();
-					break;
-				case 5:
-					checkIfAccepted();
-					break;
-				case 6:
-					printLongestAcceptingPrefix();
-					break;
-				default:
-					cout << "Invalid command\n";
-			}
-
+	if(argc < 2) {
+		cout << "Enter state machine structure\n";
+		if(readStdin()) {
+			return 1;
 		}
-
-		return 0;
+	} else {
+		if(readFile(argv[1])) {
+			return 1;
+		}
 	}
 
-	return 1;
+	while(running) {
+		cout << "--------------------\n"
+			<< "Actions:\n"
+			<< " 1 - print alphabet\n"
+			<< " 2 - print all states\n"
+			<< " 3 - print final states\n"
+			<< " 4 - print transitions\n"
+			<< " 5 - check if string is accepted\n"
+			<< " 6 - get longest accepting string\n"
+			<< " 0 - exit\n"
+			<< "\nEnter option: ";
+		cin >> command;
+
+		switch(command) {
+			case 0:
+				running = false;
+				break;
+			case 1:
+				printAlphabet();
+				break;
+			case 2:
+				printStates();
+				break;
+			case 3:
+				printFinalStates();
+				break;
+			case 4:
+				printTransitions();
+				break;
+			case 5:
+				checkIfAccepted();
+				break;
+			case 6:
+				printLongestAcceptingPrefix();
+				break;
+			default:
+				cout << "Invalid command\n";
+		}
+	}
+
+	return 0;
 }
