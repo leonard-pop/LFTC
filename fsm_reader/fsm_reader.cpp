@@ -443,6 +443,9 @@ void checkIfAccepted() {
 	} else {
 		cout << "Rejected\n";
 	}
+
+	cout << "Press return to continue...";
+	cin.get();
 }
 
 void printLongestAcceptingPrefix() {
@@ -461,6 +464,9 @@ void printLongestAcceptingPrefix() {
 	} else {
 		cout << "Entire string rejected\n";
 	}
+
+	cout << "Press return to continue...";
+	cin.get();
 }
 
 int main(int argc, char** argv) {
