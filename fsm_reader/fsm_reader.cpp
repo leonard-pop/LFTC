@@ -49,26 +49,6 @@ char getNextChar(string line, int *pos) {
 	} else {
 		return 0;
 	}
-
-	/*
-	line_pos++;
-
-	if(line_pos >= current_line.size()) {
-		getline(input, current_line);
-		while(!input.eof() && !current_line.size()) {
-			getline(input, current_line);
-		}
-
-		if(input.eof()) {
-			return 0;
-		}
-
-		line_pos = 0;
-		line_count++;
-	}
-
-	return current_line[line_pos];
-	*/
 }
 
 void signalInvalidCharacter(char c) {
@@ -102,20 +82,6 @@ int fsm(string &line) {
 		//cout << current_state << '\n';
 
 		//cout << current_char << ' ' << current_state << '\n';
-
-		/*
-		if(current_state == S_START && token_buffer != "") {
-			handleTokenEnd(token_buffer, previous_state);
-			token_buffer = "";
-		} else if(current_state == S_DEAD) {
-			token_buffer += current_char;
-			signalError(token_buffer);
-			token_buffer = "";
-			current_state = S_START;
-
-			current_char = getNextChar(input);
-		} else {*/
-
 
 		if(final_states.count(current_state)) {
 			last_accepting = pos;
