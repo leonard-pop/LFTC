@@ -161,7 +161,7 @@ int handleAlphabetLine(string &line) {
 
 	char left, right;
 
-	while(pos >= 0 && line[pos] != ']') {
+	while(pos >= 0 && line[pos] != '[') {
 		if(line[pos] == '-' && line[pos + 1] != ']') {
 			left = line[pos - 1];
 			right = line[pos + 1];
