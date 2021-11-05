@@ -1,7 +1,7 @@
 input = alphabet_section, states_section, transitions_section;
 
 alphabet_section = ".alphabet\n", {alphabet_line};
-alphabet_line = "[", ["-"], "] = ", INPUT_CODE, "\n";
+alphabet_line = "[", {alphabet_element}, ["-"], "] = ", INPUT_CODE, "\n";
 alphabet_element = VALID_ALPHABET_CHARS
 	| VALID_ALPHABET_CHARS, "-", VALID_ALPHABET_CHARS;
 
