@@ -11,6 +11,7 @@ void registerString(string buffer);
 void registerSeparator(string buffer);
 void registerOperator(string buffer);
 void registerFloat(string buffer);
+void registerKeyword(string buffer);
 
 #include "lex.yy.cc"
 
@@ -217,6 +218,11 @@ void registerNumber(string buffer) {
 	addSymbol(buffer, const_table, CONST_CODE);
 }
 
+void registerKeyword(string buffer) {
+	cout << "Keyword: " << buffer << endl;
+	addKnownAtom(buffer);
+}
+
 void registerIdentifier(string buffer) {
 	int keyword_count = sizeof(keywords) / sizeof(keywords[0]);
 
@@ -244,6 +250,7 @@ void registerString(string buffer) {
 }
 
 void registerSeparator(string buffer) {
+	cout << "Separator: " << buffer << endl;
 	addKnownAtom(buffer);
 }
 
@@ -390,7 +397,11 @@ void printTables() {
 	cout << "\n# FIP:\n";
 
 	for(int i = 0; i < fip.size(); i++) {
-		cout << fip[i].first << ' ' << fip[i].second << '\n';
+		cout << fip[i].first << ' ' << fip[i].second;
+		if(fip[i].second == -1) {
+			cout << ' ' << known_atoms[fip[i].first];
+		}
+		cout << '\n';
 	}
 }
 

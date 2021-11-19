@@ -1,19 +1,21 @@
-%{
-%}
-
 %option noyywrap
 
-DIGIT    [0-9]
+NUMBER ([1-9][0-9]*)|0
+FLOAT [0-9]+\.[0-9]+
 ID       [a-zA-Z\.]+
 STRING   \"[^\"]*\"
 
 %%
 
-{DIGIT}+    registerNumber(yytext);
+{NUMBER}    registerNumber(yytext);
 
-{DIGIT}+"."{DIGIT}*        {
+{FLOAT} 	{
 			registerFloat(yytext);
             }
+
+include|int|float|if|else|while|return|repeta|panacand|sfrepeta {
+			registerKeyword(yytext);
+			}
 
 {ID}        registerIdentifier(yytext);
 
