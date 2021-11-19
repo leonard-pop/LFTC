@@ -44,6 +44,9 @@ string known_atoms[] {
 	"else",
 	"while",
 	"return",
+	"repeta",
+	"panacand",
+	"sfrepeta",
 	"!",
 	"&",
 	"*",
@@ -137,7 +140,10 @@ string keywords[] =
 	"if",
 	"else",
 	"while",
-	"return"
+	"return",
+	"repeta",
+	"panacand",
+	"sfrepeta"
 };
 
 string multichar_operators[] =
