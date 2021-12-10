@@ -12,30 +12,38 @@
 
 %token ID
 %token CONST
-%left exp '=' exp
-%left exp '==' exp
-%left exp '!=' exp
-%left exp '>=' exp
-%left exp '<=' exp
-%left exp '+=' exp
-%left exp '-=' exp
-%left exp '*=' exp
-%left exp '/=' exp
-%left exp '>' exp
-%left exp '<' exp
-%left exp '+' exp
-%left exp '-' exp
-%left exp '*' exp
-%left exp '/' exp
+%token INT
+%token FLOAT
+%token IF
+%token ELSE
+%token WHILE
+%token RETURN
+%token PREPROCESSOR_LINE
+%token DACA
+%token ATUNCI
+%token SFDACA
+%left '='
+%left EQ
+%left N_EQ
+%left G_EQ
+%left L_EQ
+%left A_ASSIGN
+%left S_ASSIGN
+%left M_ASSIGN
+%left D_ASSIGN
+%left '>'
+%left '<'
+%left '+'
+%left '-'
+%left '*'
+%left '/'
 
 %%
 
 program:
-   function_list
-
-function_list:
 	%empty
-	| function function_list
+	| function program
+	| PREPROCESSOR_LINE program
 
 function:
 	type ID '(' parameter_list ')' '{' instruction_list '}'
@@ -63,6 +71,10 @@ instruction:
 	| if_statement
 	| while_statement
 	| return_statement ';'
+	| instr_daca
+
+instr_daca:
+	DACA '(' ID ')' ATUNCI instruction_list SFDACA
 
 variable_declaration:
 	type declaration_id_list
@@ -76,23 +88,22 @@ declaration_id_list:
 term:
 	ID
 	| '*' term
+	| '&' term
 
 exp:
    term
-   | '&' term
-   | '*' term
    | CONST
    | term '=' exp
-   | term '+=' exp
-   | term '-=' exp
-   | term '*=' exp
-   | exp '/=' exp
+   | term A_ASSIGN exp
+   | term S_ASSIGN exp
+   | term M_ASSIGN exp
+   | term D_ASSIGN exp
    | exp '>' exp
    | exp '<' exp
-   | exp '==' exp
-   | exp '!=' exp
-   | exp '>=' exp
-   | exp '<=' exp
+   | exp EQ exp
+   | exp N_EQ exp
+   | exp G_EQ exp
+   | exp L_EQ exp
    | exp '+' exp
    | exp '-' exp
    | exp '*' exp
@@ -108,19 +119,19 @@ argument_list:
 	| exp ',' argument_list
 
 if_statement:
-	'if' '(' exp ')' '{' instruction_list '}'
-	| 'if' '(' exp ')' '{' instruction_list '}' 'else' '{' instruction_list '}'
+	IF '(' exp ')' '{' instruction_list '}'
+	| IF '(' exp ')' '{' instruction_list '}' ELSE '{' instruction_list '}'
 
 while_statement:
-	'while' '(' exp ')' '{' instruction_list '}'
+	WHILE '(' exp ')' '{' instruction_list '}'
 
 return_statement:
-	'return' exp
+	RETURN exp
 
 %%
 
 void yyerror(const char *s) {
-	printf("Syntax error: %s\n", s);
+	printf("Error: %s\n", s);
 	exit(1);
 }
 
