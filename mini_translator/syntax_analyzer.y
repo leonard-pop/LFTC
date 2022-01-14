@@ -31,7 +31,9 @@
 
 	char tempbuffer[256];
 	const char *ADD_ASM_FORMAT = "\tmov eax, %s\n\tadd eax, %s\n\tmov %s, eax\n",
-		*SUB_ASM_FORMAT = "\tmov eax, %s\n\tsub eax, %s\n\tmov %s, eax\n";
+		*SUB_ASM_FORMAT = "\tmov eax, %s\n\tsub eax, %s\n\tmov %s, eax\n",
+		*IMUL_ASM_FORMAT = "\tmov eax, %s\n\tmov ebx, %s\n\timul ebx\n\tmov %s, eax\n",
+		*IDIV_ASM_FORMAT="\txor edx, edx\n\tmov eax, %s\n\tidiv %s\n\tmov %s, ax\n";
 %}
 
 %code requires {
@@ -133,14 +135,17 @@ declaration_id_list:
 term:
 	ID {
 		strcpy($$.code, "");
-		sprintf($$.varn, "[%s]", $1);
+		sprintf($$.varn, "dword [%s]", $1);
+	}
+	| '&' ID {
+		strcpy($$.code, "");
+		sprintf($$.varn, "%s", $2);
 	}
 	| CONST_NUMBER {
 		strcpy($$.code, "");
 		strcpy($$.varn, $1);
 	}
 	| '*' term
-	| '&' term
 
 assignment:
 	ID '=' exp {
@@ -155,16 +160,16 @@ exp:
 		strcpy($$.varn, $1.varn);
 	}
 	| CONST
-	| term A_ASSIGN exp
-	| term S_ASSIGN exp
-	| term M_ASSIGN exp
-	| term D_ASSIGN exp
-	| exp '>' exp
-	| exp '<' exp
-	| exp EQ exp
-	| exp N_EQ exp
-	| exp G_EQ exp
-	| exp L_EQ exp
+//	| term A_ASSIGN exp
+//	| term S_ASSIGN exp
+//	| term M_ASSIGN exp
+//	| term D_ASSIGN exp
+//	| exp '>' exp
+//	| exp '<' exp
+//	| exp EQ exp
+//	| exp N_EQ exp
+//	| exp G_EQ exp
+//	| exp L_EQ exp
 	| exp '+' exp {
 		newTempName(tempbuffer);
 		sprintf($$.varn, "[%s]", tempbuffer);
@@ -174,15 +179,42 @@ exp:
 			$$.varn);
 		strcat($$.code, tempbuffer);
 	}
-	| exp '-' exp
-	| exp '*' exp
-	| exp '/' exp
-	| '(' exp ')'
+	| exp '-' exp {
+		newTempName(tempbuffer);
+		sprintf($$.varn, "[%s]", tempbuffer);
+
+		sprintf($$.code, "%s\n%s\n", $1.code, $3.code);
+		sprintf(tempbuffer, SUB_ASM_FORMAT, $1.varn, $3.varn,
+			$$.varn);
+		strcat($$.code, tempbuffer);
+	}
+	| exp '*' exp {
+		newTempName(tempbuffer);
+		sprintf($$.varn, "[%s]", tempbuffer);
+
+		sprintf($$.code, "%s\n%s\n", $1.code, $3.code);
+		sprintf(tempbuffer, IMUL_ASM_FORMAT, $1.varn, $3.varn,
+			$$.varn);
+		strcat($$.code, tempbuffer);
+	}
+	| exp '/' exp {
+		newTempName(tempbuffer);
+		sprintf($$.varn, "[%s]", tempbuffer);
+
+		sprintf($$.code, "%s\n%s\n", $1.code, $3.code);
+		sprintf(tempbuffer, IDIV_ASM_FORMAT, $1.varn, $3.varn,
+			$$.varn);
+		strcat($$.code, tempbuffer);
+	}
+//	| '(' exp ')'
 
 function_call:
 	ID '(' argument_list ')' {
 		if(!strcmp("printf", $1)) {
-			printf("\tmov rdi, NUMBER_FORMAT\n\txor rsi, rsi\n\tmov esi, %s\n\txor rax, rax\n\tcall printf\n",
+			printf("\tmov rdi, WRITE_NUMBER_FORMAT\n\txor rsi, rsi\n\tmov esi, %s\n\txor rax, rax\n\tcall printf\n",
+				$3.varn);
+		} else if(!strcmp("scanf", $1)) {
+			printf("\tmov rdi, READ_NUMBER_FORMAT\n\tmov rsi, %s\n\txor rax, rax\n\tcall scanf\n",
 				$3.varn);
 		}
 	}
@@ -227,7 +259,7 @@ int main(int argc, char *argv[]) {
 		yyin = stdin;
 	}
 
-	printf("BITS 64\nextern printf\nglobal main\nmain:\n");
+	printf("BITS 64\nextern printf\nextern scanf\nglobal main\nmain:\n\tpush rbp\n\tmov rbp, rsp\n");
 
 	while (!feof(yyin)) {
 		yyparse();
@@ -235,14 +267,15 @@ int main(int argc, char *argv[]) {
 
 	//printf("No errors found\n");
 
-	puts("\n\tmov rax, 60\n\tsyscall");
+	puts("\n\tleave\n\tret");
 	puts("\nsection .data");
 
 	for(int i = 0; i < variable_count; i++) {
 		printf("\t%s dd 0\n", variable_names[i]);
 	}
 
-	puts("\tNUMBER_FORMAT db '%d',10,0");
+	puts("\tWRITE_NUMBER_FORMAT db '%d',10,0");
+	puts("\tREAD_NUMBER_FORMAT db '%d',0");
 
 	cleanup();
 

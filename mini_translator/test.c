@@ -4,9 +4,10 @@ int main() {
 	int a;
 	int b;
 
-	a = 3;
-	b = 1;
-	a = a + 2 + b;
+	scanf("%d", &a);
+	scanf("%d", &b);
+
+	a = a * 2 + 4 / b;
 
 	printf("%d\n", a);
 }
