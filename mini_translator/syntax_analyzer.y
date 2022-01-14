@@ -113,13 +113,10 @@ instruction:
 	| exp ';'
 	| assignment ';'
 	| function_call ';'
-	| if_statement
-	| while_statement
-	| return_statement ';'
-	| instr_daca
-
-instr_daca:
-	DACA '(' ID ')' ATUNCI instruction_list SFDACA
+//	| if_statement
+//	| while_statement
+//	| return_statement ';'
+//	| instr_daca
 
 variable_declaration:
 	type declaration_id_list
@@ -145,7 +142,7 @@ term:
 		strcpy($$.code, "");
 		strcpy($$.varn, $1);
 	}
-	| '*' term
+//	| '*' term
 
 assignment:
 	ID '=' exp {
@@ -159,7 +156,7 @@ exp:
 		strcpy($$.code, $1.code);
 		strcpy($$.varn, $1.varn);
 	}
-	| CONST
+//	| CONST
 //	| term A_ASSIGN exp
 //	| term S_ASSIGN exp
 //	| term M_ASSIGN exp
@@ -220,22 +217,22 @@ function_call:
 	}
 
 argument_list:
-	%empty
-	| CONST ',' term {
+//	%empty
+	CONST ',' term {
 		strcpy($$.varn, $3.varn);
 	}
 //	| exp
 //	| exp ',' argument_list
 
-if_statement:
-	IF '(' exp ')' '{' instruction_list '}'
-	| IF '(' exp ')' '{' instruction_list '}' ELSE '{' instruction_list '}'
+//if_statement:
+//	IF '(' exp ')' '{' instruction_list '}'
+//	| IF '(' exp ')' '{' instruction_list '}' ELSE '{' instruction_list '}'
 
-while_statement:
-	WHILE '(' exp ')' '{' instruction_list '}'
+//while_statement:
+//	WHILE '(' exp ')' '{' instruction_list '}'
 
-return_statement:
-	RETURN exp
+//return_statement:
+//	RETURN exp
 
 %%
 
