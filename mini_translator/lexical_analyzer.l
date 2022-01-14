@@ -5,7 +5,7 @@
 
 %option noyywrap
 
-NUMBER ([1-9][0-9]*)|0
+NUMBER -?([1-9][0-9]*)|0
 FLOAT [0-9]+\.[0-9]+
 ID       [a-zA-Z\.]+
 STRING   \"[^\"]*\"

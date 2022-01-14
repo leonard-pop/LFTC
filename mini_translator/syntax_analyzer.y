@@ -33,7 +33,7 @@
 	const char *ADD_ASM_FORMAT = "\tmov eax, %s\n\tadd eax, %s\n\tmov %s, eax\n",
 		*SUB_ASM_FORMAT = "\tmov eax, %s\n\tsub eax, %s\n\tmov %s, eax\n",
 		*IMUL_ASM_FORMAT = "\tmov eax, %s\n\tmov ebx, %s\n\timul ebx\n\tmov %s, eax\n",
-		*IDIV_ASM_FORMAT="\txor edx, edx\n\tmov eax, %s\n\tidiv %s\n\tmov %s, ax\n";
+		*IDIV_ASM_FORMAT="\txor edx, edx\n\tmov eax, %s\n\tidiv %s\n\tmovsx ebx, ax\n\tmov %s, ebx\n";
 %}
 
 %code requires {
@@ -169,7 +169,7 @@ exp:
 //	| exp L_EQ exp
 	| exp '+' exp {
 		newTempName(tempbuffer);
-		sprintf($$.varn, "[%s]", tempbuffer);
+		sprintf($$.varn, "dword [%s]", tempbuffer);
 
 		sprintf($$.code, "%s\n%s\n", $1.code, $3.code);
 		sprintf(tempbuffer, ADD_ASM_FORMAT, $1.varn, $3.varn,
@@ -178,7 +178,7 @@ exp:
 	}
 	| exp '-' exp {
 		newTempName(tempbuffer);
-		sprintf($$.varn, "[%s]", tempbuffer);
+		sprintf($$.varn, "dword [%s]", tempbuffer);
 
 		sprintf($$.code, "%s\n%s\n", $1.code, $3.code);
 		sprintf(tempbuffer, SUB_ASM_FORMAT, $1.varn, $3.varn,
@@ -187,7 +187,7 @@ exp:
 	}
 	| exp '*' exp {
 		newTempName(tempbuffer);
-		sprintf($$.varn, "[%s]", tempbuffer);
+		sprintf($$.varn, "dword [%s]", tempbuffer);
 
 		sprintf($$.code, "%s\n%s\n", $1.code, $3.code);
 		sprintf(tempbuffer, IMUL_ASM_FORMAT, $1.varn, $3.varn,
@@ -196,7 +196,7 @@ exp:
 	}
 	| exp '/' exp {
 		newTempName(tempbuffer);
-		sprintf($$.varn, "[%s]", tempbuffer);
+		sprintf($$.varn, "dword [%s]", tempbuffer);
 
 		sprintf($$.code, "%s\n%s\n", $1.code, $3.code);
 		sprintf(tempbuffer, IDIV_ASM_FORMAT, $1.varn, $3.varn,
